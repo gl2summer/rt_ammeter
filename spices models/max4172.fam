@@ -1,0 +1,61 @@
+*model for MAX4172
+*Version:01 
+*date: Mar/9th/2012 
+*Version:02 
+*date: Mar/15th/2012 
+*Version:03
+*date: May/13th/2013 
+.SUBCKT MAX4172 RS+ RS- GND OUT PG V+
+
+R+ RS+ ib+ 1g
+R- RS- ib- 1g
+Vi+ ib+ GND 0
+Vi- ib- GND 0
+Fi+ RS+ GND VALUE={-I(Vi+)+27u}
+Fi- RS- GND VALUE={-I(Vi-)+50u}
+Rs+ RS+ rsp 100
+Cs+ rsp RS- 1.95n
+Esen1 sen1 0 VALUE={V(rsp)-V(RS-)}
+Esen sen 0 table {V(sen1)} = (0,0) (0.175,0.175)
+Go  GND OUT VALUE={(V(sen)+0.1m+V(psr)+V(cmr))*10m}
+Ecmr cmr 0 VALUE={(V(RS+)+V(RS-))/2*3.16e-6}
+Epsr psr 0 VALUE={V(V+)*18u}
+Elim lim lim1 V+ 0 1
+Elim1 lim1 GND VALUE={-1.2}
+Dlim OUT lim DX1
+X_vcchp V+ 0 V+ vcchp shutdown
+Spg PG 0 V+ 0 smod
+.model smod VSWITCH(ron=0.1 roff=1g Von=1.5 Voff=0.5)
+.MODEL DX1  D(n=0.001)
+ICC V+ GND 690u
+Gcc V+ GND V+ GND 3.3u
+.MODEL DY D(IS=100E-14 N=10M)
+.ends
+**************************************************************************************
+.SUBCKT shutdown 10 18 91 cs
+E20 20 18 10 18 0.5
+Ecs cs 18 VALUE={V(96)-V(20)}
+*SHUTDOWN
+RSHIN 91 20 500K
+ESH3 220 20 91 18 1
+RSHA 220 221 1K
+CSHA 221 20 32P
+ESH2 92 20 221 20 1
+RSH1 92 93 100
+VSH1 93 94 0V
+EHYS 95 94 POLY(2) 10 18 96 20 0 0 0 0 0.1
+RBL 94 20 10K  
+ESH1 95 20 10 18 0.35
+****
+FSH1 20 96 Vsh1 1
+CSH1 96 20 10P
+DSH2 20 96 DA
+DSH1 96 97 DA
+VSH2 97 20 1V
+RSH2 96 20 100K
+.MODEL DA D(N=0.1M)
+.ends
+**************************************************************************************
+
+
+* Copyright (c) 2003-2012 Maxim Integrated Products.  All Rights Reserved.
